@@ -2,178 +2,362 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QR Code Generator</title>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      text-align: center;
-      padding: 30px;
-    }
-
-    .app {
-      background: #fff;
-      max-width: 520px;
-      margin: auto;
-      padding: 25px;
-      border-radius: 14px;
-      box-shadow: 0 5px 18px rgba(0,0,0,0.12);
-    }
-
-    input, select, button {
-      width: 90%;
-      padding: 11px;
-      margin: 8px 0;
-      font-size: 15px;
+    * {
       box-sizing: border-box;
     }
 
-    button {
-      background: #111;
-      color: white;
-      border: none;
-      border-radius: 7px;
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b, #2563eb);
+      padding: 24px;
+      color: #0f172a;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+    }
+
+    .panel {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 26px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+      overflow: hidden;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      color: #111827;
+    }
+
+    .subtitle {
+      color: #64748b;
+      margin: 8px 0 24px;
+      font-size: 15px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      margin: 14px 0 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 15px;
+      background: #f8fafc;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: #2563eb;
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .tab {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
       cursor: pointer;
+      font-weight: 800;
+      color: #475569;
+      font-size: 15px;
     }
 
-    button:hover {
-      background: #333;
-    }
-
-    .row {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin: 10px 0;
-    }
-
-    .row label {
-      font-size: 14px;
-    }
-
-    input[type="color"] {
-      width: 60px;
-      padding: 3px;
-      height: 40px;
+    .tab.active {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 10px 25px rgba(37,99,235,0.3);
     }
 
     #wifi-fields {
       display: none;
     }
 
-    #drop-area {
-      border: 2px dashed #999;
-      padding: 20px;
-      margin: 15px auto;
-      border-radius: 10px;
-      background: #fafafa;
+    .color-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    input[type="color"] {
+      height: 52px;
+      padding: 6px;
       cursor: pointer;
-      width: 85%;
+    }
+
+    #drop-area {
+      margin-top: 18px;
+      border: 2px dashed #93c5fd;
+      background: #eff6ff;
+      padding: 24px;
+      border-radius: 18px;
+      cursor: pointer;
+      text-align: center;
+      color: #2563eb;
+      font-weight: 800;
     }
 
     #drop-area.highlight {
-      border-color: #111;
-      background: #eee;
+      background: #dbeafe;
+      border-color: #2563eb;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 15px 18px;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white;
+      box-shadow: 0 10px 24px rgba(37,99,235,0.35);
+    }
+
+    .secondary {
+      background: #0f172a;
+      color: white;
+    }
+
+    .preview-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      background: linear-gradient(180deg, #f8fafc, #eef2ff);
+    }
+
+    .preview-title {
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 16px;
+      font-size: 18px;
     }
 
     #qr-preview {
-      margin-top: 25px;
-      display: inline-block;
+      width: 100%;
+      max-width: 340px;
+      min-height: 340px;
       background: white;
-      padding: 20px;
-      border-radius: 12px;
+      padding: 24px;
+      border-radius: 24px;
+      box-shadow: 0 15px 35px rgba(15,23,42,0.12);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
 
     #qr-container {
       position: relative;
       width: 280px;
       height: 280px;
-      margin: auto;
+      max-width: 100%;
     }
 
     #qrcode canvas {
       width: 280px !important;
       height: 280px !important;
+      max-width: 100%;
+      border-radius: 12px;
     }
 
     #logo {
       position: absolute;
-      width: 65px;
-      height: 65px;
+      width: 66px;
+      height: 66px;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       object-fit: contain;
       background: white;
-      padding: 7px;
-      border-radius: 12px;
+      padding: 8px;
+      border-radius: 14px;
       display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
     #qr-text {
-      margin-top: 12px;
+      margin-top: 14px;
       font-size: 18px;
-      font-weight: bold;
+      font-weight: 800;
       max-width: 280px;
       word-wrap: break-word;
+      color: #111827;
+    }
+
+    .hint {
+      margin-top: 16px;
+      color: #64748b;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 850px) {
+      body {
+        padding: 16px;
+      }
+
+      .app {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .panel {
+        padding: 22px;
+        border-radius: 22px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .tabs,
+      .actions,
+      .color-row {
+        grid-template-columns: 1fr;
+      }
+
+      #qr-preview {
+        max-width: 100%;
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding: 12px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      #qr-container {
+        width: 240px;
+        height: 240px;
+      }
+
+      #qrcode canvas {
+        width: 240px !important;
+        height: 240px !important;
+      }
+
+      #logo {
+        width: 56px;
+        height: 56px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <div class="app">
-    <h2>QR Code Generator</h2>
+<div class="app">
+  <div class="panel">
+    <h1>QR Code Generator</h1>
+    <p class="subtitle">Create branded QR codes for links, text, and WiFi access.</p>
 
-    <select id="qr-type" onchange="toggleQRType()">
-      <option value="normal">Text / URL QR</option>
-      <option value="wifi">WiFi QR</option>
-    </select>
+    <div class="tabs">
+      <button class="tab active" id="normal-tab" onclick="setQRType('normal')">🔗 Text / URL</button>
+      <button class="tab" id="wifi-tab" onclick="setQRType('wifi')">📶 WiFi</button>
+    </div>
 
     <div id="normal-fields">
-      <input type="text" id="qr-input" placeholder="Enter text or URL" />
+      <label>QR Content</label>
+      <input type="text" id="qr-input" placeholder="https://example.com or any text" />
     </div>
 
     <div id="wifi-fields">
-      <input type="text" id="ssid" placeholder="WiFi Name / SSID" />
-      <input type="text" id="password" placeholder="WiFi Password" />
+      <label>WiFi Name / SSID</label>
+      <input type="text" id="ssid" placeholder="Your WiFi name" />
 
+      <label>WiFi Password</label>
+      <input type="text" id="password" placeholder="Your WiFi password" />
+
+      <label>Security Type</label>
       <select id="security">
-        <option value="WPA">WPA/WPA2/WPA3</option>
+        <option value="WPA">WPA / WPA2 / WPA3</option>
         <option value="WEP">WEP</option>
         <option value="nopass">No Password</option>
       </select>
-
-      <select id="hidden">
-        <option value="false">Visible Network</option>
-        <option value="true">Hidden Network</option>
-      </select>
     </div>
 
-    <input type="text" id="bottom-text" placeholder="Text below QR, e.g. Scan me" />
+    <label>Bottom Text</label>
+    <input type="text" id="bottom-text" placeholder="Example: Scan me" />
 
-    <div class="row">
-      <label>
-        QR Color<br>
-        <input type="color" id="qr-color" value="#000000" />
-      </label>
+    <div class="color-row">
+      <div>
+        <label>QR Color</label>
+        <input type="color" id="qr-color" value="#0f172a" />
+      </div>
 
-      <label>
-        Background<br>
+      <div>
+        <label>Background</label>
         <input type="color" id="bg-color" value="#ffffff" />
-      </label>
+      </div>
     </div>
 
     <div id="drop-area">
-      <p>Drag & drop logo here or click to upload</p>
-      <input type="file" id="logo-upload" accept="image/*" hidden />
+      Drop logo here or click to upload
+      <input type="file" id="logo-upload" hidden accept="image/*" />
     </div>
 
-    <button onclick="generateQR()">Generate QR</button>
-    <button onclick="downloadHighResPNG()">Download Print-Ready PNG</button>
+    <div class="actions">
+      <button class="primary" onclick="generateQR(true)">Generate QR</button>
+      <button class="secondary" onclick="downloadHighResPNG()">Download PNG</button>
+    </div>
+  </div>
+
+  <div class="panel preview-panel">
+    <div class="preview-title">Live Preview</div>
 
     <div id="qr-preview">
       <div id="qr-container">
@@ -182,270 +366,225 @@
       </div>
       <div id="qr-text"></div>
     </div>
+
+    <p class="hint">Use dark QR colors on a light background for best scanning.</p>
   </div>
+</div>
 
-  <script>
-    let logoDataUrl = null;
-    let currentQRContent = "";
+<script>
+  let logoDataUrl = null;
+  let currentQRContent = "";
+  let qrType = "normal";
 
-    const dropArea = document.getElementById("drop-area");
-    const logoUpload = document.getElementById("logo-upload");
+  const dropArea = document.getElementById("drop-area");
+  const upload = document.getElementById("logo-upload");
 
-    function toggleQRType() {
-      const type = document.getElementById("qr-type").value;
+  function setQRType(type) {
+    qrType = type;
 
-      document.getElementById("normal-fields").style.display =
-        type === "normal" ? "block" : "none";
+    document.getElementById("normal-fields").style.display =
+      type === "normal" ? "block" : "none";
 
-      document.getElementById("wifi-fields").style.display =
-        type === "wifi" ? "block" : "none";
+    document.getElementById("wifi-fields").style.display =
+      type === "wifi" ? "block" : "none";
+
+    document.getElementById("normal-tab").classList.toggle("active", type === "normal");
+    document.getElementById("wifi-tab").classList.toggle("active", type === "wifi");
+  }
+
+  dropArea.addEventListener("click", () => upload.click());
+
+  upload.addEventListener("change", e => {
+    handleFile(e.target.files[0]);
+  });
+
+  dropArea.addEventListener("dragover", e => {
+    e.preventDefault();
+    dropArea.classList.add("highlight");
+  });
+
+  dropArea.addEventListener("dragleave", () => {
+    dropArea.classList.remove("highlight");
+  });
+
+  dropArea.addEventListener("drop", e => {
+    e.preventDefault();
+    dropArea.classList.remove("highlight");
+    handleFile(e.dataTransfer.files[0]);
+  });
+
+  function handleFile(file) {
+    if (!file || !file.type.startsWith("image/")) {
+      alert("Please upload a valid image file.");
+      return;
     }
 
-    dropArea.addEventListener("click", () => {
-      logoUpload.click();
-    });
+    const reader = new FileReader();
+    reader.onload = e => {
+      logoDataUrl = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
 
-    logoUpload.addEventListener("change", function(event) {
-      handleLogoFile(event.target.files[0]);
-    });
+  function escapeWiFiText(value) {
+    return value
+      .replace(/\\/g, "\\\\")
+      .replace(/;/g, "\\;")
+      .replace(/,/g, "\\,")
+      .replace(/:/g, "\\:")
+      .replace(/"/g, '\\"');
+  }
 
-    dropArea.addEventListener("dragover", function(event) {
-      event.preventDefault();
-      dropArea.classList.add("highlight");
-    });
+  function getQRContent(showAlert = false) {
+    if (qrType === "normal") {
+      const value = document.getElementById("qr-input").value.trim();
 
-    dropArea.addEventListener("dragleave", function() {
-      dropArea.classList.remove("highlight");
-    });
-
-    dropArea.addEventListener("drop", function(event) {
-      event.preventDefault();
-      dropArea.classList.remove("highlight");
-
-      handleLogoFile(event.dataTransfer.files[0]);
-    });
-
-    function handleLogoFile(file) {
-      if (!file) return;
-
-      if (!file.type.startsWith("image/")) {
-        alert("Please upload an image file.");
-        return;
+      if (!value) {
+        if (showAlert) alert("Please enter text or URL.");
+        return null;
       }
 
-      const reader = new FileReader();
+      return value;
+    }
 
-      reader.onload = function(event) {
-        logoDataUrl = event.target.result;
-        alert("Logo uploaded successfully.");
+    const ssid = document.getElementById("ssid").value.trim();
+    const password = document.getElementById("password").value;
+    const security = document.getElementById("security").value;
+
+    if (!ssid) {
+      if (showAlert) alert("WiFi SSID is required.");
+      return null;
+    }
+
+    if (security !== "nopass" && !password.trim()) {
+      if (showAlert) alert("WiFi password is required.");
+      return null;
+    }
+
+    return `WIFI:T:${security};S:${escapeWiFiText(ssid)};P:${escapeWiFiText(password)};;`;
+  }
+
+  function generateQR(showAlert = false) {
+    const content = getQRContent(showAlert);
+    if (!content) return;
+
+    const qrDiv = document.getElementById("qrcode");
+    const logo = document.getElementById("logo");
+
+    currentQRContent = content;
+    qrDiv.innerHTML = "";
+
+    new QRCode(qrDiv, {
+      text: content,
+      width: window.innerWidth <= 420 ? 240 : 280,
+      height: window.innerWidth <= 420 ? 240 : 280,
+      colorDark: document.getElementById("qr-color").value,
+      colorLight: document.getElementById("bg-color").value,
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    document.getElementById("qr-text").innerText =
+      document.getElementById("bottom-text").value.trim();
+
+    if (logoDataUrl) {
+      logo.src = logoDataUrl;
+      logo.style.display = "block";
+    } else {
+      logo.style.display = "none";
+    }
+  }
+
+  function downloadHighResPNG() {
+    if (!currentQRContent) {
+      alert("Please generate a QR code first.");
+      return;
+    }
+
+    const qrCanvas = document.querySelector("#qrcode canvas");
+    const bottomText = document.getElementById("bottom-text").value.trim();
+    const bgColor = document.getElementById("bg-color").value;
+
+    const exportSize = 1600;
+    const padding = 160;
+    const textHeight = bottomText ? 180 : 0;
+
+    const finalCanvas = document.createElement("canvas");
+    finalCanvas.width = exportSize;
+    finalCanvas.height = exportSize + textHeight;
+
+    const ctx = finalCanvas.getContext("2d");
+
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+    ctx.drawImage(
+      qrCanvas,
+      padding / 2,
+      padding / 2,
+      exportSize - padding,
+      exportSize - padding
+    );
+
+    if (logoDataUrl) {
+      const logoImg = new Image();
+
+      logoImg.onload = function () {
+        drawLogo(ctx, finalCanvas, logoImg, exportSize);
+        drawBottomText(ctx, finalCanvas, bottomText, exportSize);
+        triggerDownload(finalCanvas);
       };
 
-      reader.readAsDataURL(file);
+      logoImg.src = logoDataUrl;
+    } else {
+      drawBottomText(ctx, finalCanvas, bottomText, exportSize);
+      triggerDownload(finalCanvas);
     }
+  }
 
-    function escapeWiFiText(value) {
-      return value
-        .replace(/\\/g, "\\\\")
-        .replace(/;/g, "\\;")
-        .replace(/,/g, "\\,")
-        .replace(/:/g, "\\:")
-        .replace(/"/g, '\\"');
-    }
+  function drawLogo(ctx, finalCanvas, logoImg, exportSize) {
+    const logoSize = 280;
+    const logoPadding = 36;
+    const x = (finalCanvas.width - logoSize) / 2;
+    const y = (exportSize - logoSize) / 2;
 
-    function getQRContent() {
-      const type = document.getElementById("qr-type").value;
+    ctx.fillStyle = "#ffffff";
+    roundRect(ctx, x - logoPadding, y - logoPadding, logoSize + logoPadding * 2, logoSize + logoPadding * 2, 45);
+    ctx.fill();
 
-      if (type === "normal") {
-        const qrInput = document.getElementById("qr-input").value.trim();
+    ctx.drawImage(logoImg, x, y, logoSize, logoSize);
+  }
 
-        if (!qrInput) {
-          alert("Please enter text or URL.");
-          return null;
-        }
+  function drawBottomText(ctx, finalCanvas, text, exportSize) {
+    if (!text) return;
 
-        return qrInput;
-      }
+    ctx.fillStyle = "#111827";
+    ctx.font = "bold 72px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, finalCanvas.width / 2, exportSize + 85);
+  }
 
-      const ssid = document.getElementById("ssid").value.trim();
-      const password = document.getElementById("password").value;
-      const security = document.getElementById("security").value;
-      const hidden = document.getElementById("hidden").value;
+  function triggerDownload(canvas) {
+    const link = document.createElement("a");
+    link.download = "qr-code.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }
 
-      if (!ssid) {
-        alert("WiFi SSID is required.");
-        return null;
-      }
-
-      if (security !== "nopass" && !password.trim()) {
-        alert("WiFi password is required.");
-        return null;
-      }
-
-      return `WIFI:T:${security};S:${escapeWiFiText(ssid)};P:${escapeWiFiText(password)};H:${hidden};;`;
-    }
-
-    function generateQR() {
-      const qrContent = getQRContent();
-      if (!qrContent) return;
-
-      const qrColor = document.getElementById("qr-color").value;
-      const bgColor = document.getElementById("bg-color").value;
-      const bottomText = document.getElementById("bottom-text").value.trim();
-
-      const qrDiv = document.getElementById("qrcode");
-      const textDiv = document.getElementById("qr-text");
-      const logo = document.getElementById("logo");
-
-      currentQRContent = qrContent;
-      qrDiv.innerHTML = "";
-
-      new QRCode(qrDiv, {
-        text: qrContent,
-        width: 280,
-        height: 280,
-        colorDark: qrColor,
-        colorLight: bgColor,
-        correctLevel: QRCode.CorrectLevel.H
-      });
-
-      textDiv.innerText = bottomText;
-
-      if (logoDataUrl) {
-        logo.src = logoDataUrl;
-        logo.style.display = "block";
-      } else {
-        logo.style.display = "none";
-      }
-    }
-
-    function downloadHighResPNG() {
-      if (!currentQRContent) {
-        alert("Please generate a QR code first.");
-        return;
-      }
-
-      const qrCanvas = document.querySelector("#qrcode canvas");
-      const bgColor = document.getElementById("bg-color").value;
-      const bottomText = document.getElementById("bottom-text").value.trim();
-
-      const exportSize = 1600;
-      const padding = 160;
-      const textAreaHeight = bottomText ? 180 : 0;
-
-      const finalCanvas = document.createElement("canvas");
-      finalCanvas.width = exportSize;
-      finalCanvas.height = exportSize + textAreaHeight;
-
-      const ctx = finalCanvas.getContext("2d");
-
-      ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-
-      ctx.drawImage(
-        qrCanvas,
-        padding / 2,
-        padding / 2,
-        exportSize - padding,
-        exportSize - padding
-      );
-
-      if (logoDataUrl) {
-        const logoImage = new Image();
-
-        logoImage.onload = function() {
-          drawLogoAndDownload(ctx, finalCanvas, logoImage, exportSize, bottomText);
-        };
-
-        logoImage.src = logoDataUrl;
-      } else {
-        drawTextAndDownload(ctx, finalCanvas, exportSize, bottomText);
-      }
-    }
-
-    function drawLogoAndDownload(ctx, finalCanvas, logoImage, exportSize, bottomText) {
-      const logoSize = 280;
-      const logoPadding = 35;
-
-      const logoX = (finalCanvas.width - logoSize) / 2;
-      const logoY = (exportSize - logoSize) / 2;
-
-      ctx.fillStyle = "#ffffff";
-      roundRect(
-        ctx,
-        logoX - logoPadding,
-        logoY - logoPadding,
-        logoSize + logoPadding * 2,
-        logoSize + logoPadding * 2,
-        45
-      );
-      ctx.fill();
-
-      ctx.drawImage(logoImage, logoX, logoY, logoSize, logoSize);
-
-      drawTextAndDownload(ctx, finalCanvas, exportSize, bottomText);
-    }
-
-    function drawTextAndDownload(ctx, finalCanvas, exportSize, bottomText) {
-      if (bottomText) {
-        ctx.fillStyle = "#000000";
-        ctx.font = "bold 70px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
-        wrapText(
-          ctx,
-          bottomText,
-          finalCanvas.width / 2,
-          exportSize + 80,
-          finalCanvas.width - 200,
-          80
-        );
-      }
-
-      const link = document.createElement("a");
-      link.download = "qr-code-print-ready.png";
-      link.href = finalCanvas.toDataURL("image/png");
-      link.click();
-    }
-
-    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-      const words = text.split(" ");
-      let line = "";
-      let lines = [];
-
-      for (let i = 0; i < words.length; i++) {
-        const testLine = line + words[i] + " ";
-        const testWidth = ctx.measureText(testLine).width;
-
-        if (testWidth > maxWidth && i > 0) {
-          lines.push(line);
-          line = words[i] + " ";
-        } else {
-          line = testLine;
-        }
-      }
-
-      lines.push(line);
-
-      for (let i = 0; i < lines.length; i++) {
-        ctx.fillText(lines[i], x, y + i * lineHeight);
-      }
-    }
-
-    function roundRect(ctx, x, y, width, height, radius) {
-      ctx.beginPath();
-      ctx.moveTo(x + radius, y);
-      ctx.lineTo(x + width - radius, y);
-      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-      ctx.lineTo(x + width, y + height - radius);
-      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-      ctx.lineTo(x + radius, y + height);
-      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-      ctx.lineTo(x, y + radius);
-      ctx.quadraticCurveTo(x, y, x + radius, y);
-      ctx.closePath();
-    }
-  </script>
+  function roundRect(ctx, x, y, width, height, radius) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+  }
+</script>
 
 </body>
 </html>
